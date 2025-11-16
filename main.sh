@@ -5,13 +5,17 @@ source .env
 PROMPT="$*"
 TEMP_FILE=$(mktemp)
 prompt=$(echo $PROMPT)
+ANTHROPIC_MODEL=${MODEL:-"claude-sonnet-4-5-20250929"}
+SYSTEM_PROMPT=${SYSTEM_PROMPT:-""}
 
 JSON_PAYLOAD=$(jq -n \
-  --arg model "claude-sonnet-4-5-20250929" \
+  --arg model "$ANTHROPIC_MODEL" \
   --arg prompt "$PROMPT" \
+  --arg system_prompt "$SYSTEM_PROMPT" \
   '{
     model: $model,
-    max_tokens: 1024,
+    system: $system_prompt,
+    max_tokens: 2048,
     messages: [{role: "user", content: $prompt}]
   }')
 
@@ -29,4 +33,3 @@ echo -ne "\r\033[K"
 
 # Display response
 jq -r '.content[0].text' "$TEMP_FILE"
-rm "$TEMP_FILE"

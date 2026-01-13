@@ -1,14 +1,11 @@
-# klod
+# Klod
 
 A simple, fast CLI tool for chatting with Claude using the Anthropic API with real-time streaming responses.
 
 ## Features
 
-- Interactive chat with Claude in your terminal
-- Real-time streaming responses (see text as Claude types)
 - Maintains conversation history within a session
 - Configurable model and system prompts
-- Multi-location config file support
 
 ## Requirements
 
@@ -19,9 +16,9 @@ A simple, fast CLI tool for chatting with Claude using the Anthropic API with re
 
 1. Clone and build:
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/leoalho/klod.git
 cd anthropic-cli
-go build -o klod
+go build
 ```
 
 2. Create a symlink for global access:
@@ -65,7 +62,7 @@ EOF
 
 Start a conversation:
 ```bash
-klod "Hello, how are you?"
+klod Hello, how are you?
 ```
 
 This will:
@@ -75,27 +72,9 @@ This will:
 
 Type `exit` or `quit` to end the conversation.
 
-## Examples
-
-```bash
-# Ask a quick question
-klod "What is the capital of France?"
-
-# Start a coding session
-klod "Help me write a Python function to calculate fibonacci numbers"
-
-# Use a different model (set in config)
-# Edit your config file and change MODEL=claude-opus-4-5-20251101
-klod "Explain quantum computing"
-```
-
 ## Development
 
 Run without building:
 ```bash
-go run main.go "your message here"
+go run main.go your message here
 ```
-
-## License
-
-MIT

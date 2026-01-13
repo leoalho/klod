@@ -1,4 +1,4 @@
-module prompt
+module klod
 
 go 1.21
 

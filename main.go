@@ -66,8 +66,8 @@ func loadConfig() error {
 	}
 
 	configPaths := []string{
-		filepath.Join(homeDir, ".config", "prompt", "config"), // XDG standard
-		filepath.Join(homeDir, ".prompt.env"),       // Home directory
+		filepath.Join(homeDir, ".config", "klod", "config"), // XDG standard
+		filepath.Join(homeDir, ".klod.env"),       // Home directory
 		".env",                                      // Current directory (for project-specific overrides)
 	}
 
@@ -106,7 +106,7 @@ func main() {
 
 	// Get initial prompt from command-line arguments
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "Usage: prompt <your prompt>")
+		fmt.Fprintln(os.Stderr, "Usage: klod <your prompt>")
 		os.Exit(1)
 	}
 
@@ -124,8 +124,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
-
-	fmt.Println(response)
 
 	// Add assistant's response to conversation history
 	conversationHistory = append(conversationHistory, Message{
@@ -164,8 +162,6 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			continue
 		}
-
-		fmt.Println(response)
 
 		// Add assistant's response to conversation history
 		conversationHistory = append(conversationHistory, Message{

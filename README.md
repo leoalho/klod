@@ -1,4 +1,4 @@
-# prompt
+# klod
 
 A simple, fast CLI tool for chatting with Claude using the Anthropic API with real-time streaming responses.
 
@@ -21,12 +21,12 @@ A simple, fast CLI tool for chatting with Claude using the Anthropic API with re
 ```bash
 git clone <your-repo-url>
 cd anthropic-cli
-go build -o prompt
+go build -o klod
 ```
 
 2. Create a symlink for global access:
 ```bash
-sudo ln -s $(pwd)/prompt /usr/local/bin/prompt
+sudo ln -s $(pwd)/klod /usr/local/bin/klod
 ```
 
 Or install via Go:
@@ -37,18 +37,18 @@ go install
 ## Configuration
 
 The tool looks for configuration files in the following order:
-1. `~/.config/prompt/config` (XDG standard location)
-2. `~/.prompt.env` (home directory)
+1. `~/.config/klod/config` (XDG standard location)
+2. `~/.klod.env` (home directory)
 3. `.env` in the current directory (for project-specific overrides)
 
 ### Setup your config:
 
 ```bash
 # Create the config directory
-mkdir -p ~/.config/prompt
+mkdir -p ~/.config/klod
 
 # Create config file
-cat > ~/.config/prompt/config << EOF
+cat > ~/.config/klod/config << EOF
 ANTHROPIC_API_KEY=your-api-key-here
 MODEL=claude-sonnet-4-5-20250929
 SYSTEM_PROMPT=
@@ -65,7 +65,7 @@ EOF
 
 Start a conversation:
 ```bash
-prompt "Hello, how are you?"
+klod "Hello, how are you?"
 ```
 
 This will:
@@ -79,14 +79,14 @@ Type `exit` or `quit` to end the conversation.
 
 ```bash
 # Ask a quick question
-prompt "What is the capital of France?"
+klod "What is the capital of France?"
 
 # Start a coding session
-prompt "Help me write a Python function to calculate fibonacci numbers"
+klod "Help me write a Python function to calculate fibonacci numbers"
 
 # Use a different model (set in config)
 # Edit your config file and change MODEL=claude-opus-4-5-20251101
-prompt "Explain quantum computing"
+klod "Explain quantum computing"
 ```
 
 ## Development

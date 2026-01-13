@@ -2,6 +2,10 @@
 
 Klod (pronounced \klod\\), a simple Go-based CLI tool for interacting with the Anthropic API
 
+## Motivation
+
+Sometimes you just need to quickly check/ask an LLM something. I basically live in the terminal so I want to avoid the context switch to a browser. Claude code on the other hand is a bit too eager to help (which has its benefits but no necessarily for your quick short messages). Therefore I quickly stiched together klod, originally in bash, still living as [./main.sh](main.sh) at the root of the project.
+
 ## Features
 
 - Maintains conversation history within a session
@@ -37,20 +41,6 @@ The tool looks for configuration files in the following order:
 1. `~/.config/klod/config` (XDG standard location)
 2. `~/.klod.env` (home directory)
 3. `.env` in the current directory (for project-specific overrides)
-
-### Setup your config:
-
-```bash
-# Create the config directory
-mkdir -p ~/.config/klod
-
-# Create config file
-cat > ~/.config/klod/config << EOF
-ANTHROPIC_API_KEY=your-api-key-here
-MODEL=claude-sonnet-4-5-20250929
-SYSTEM_PROMPT=
-EOF
-```
 
 ### Configuration options:
 

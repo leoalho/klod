@@ -66,9 +66,9 @@ func loadConfig() error {
 	}
 
 	configPaths := []string{
-		".env",                                      // Current directory
 		filepath.Join(homeDir, ".config", "prompt", "config"), // XDG standard
 		filepath.Join(homeDir, ".prompt.env"),       // Home directory
+		".env",                                      // Current directory (for project-specific overrides)
 	}
 
 	var lastErr error

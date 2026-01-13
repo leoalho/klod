@@ -37,9 +37,9 @@ go install
 ## Configuration
 
 The tool looks for configuration files in the following order:
-1. `.env` in the current directory (for project-specific configs)
-2. `~/.config/prompt/config` (XDG standard location)
-3. `~/.prompt.env` (home directory)
+1. `~/.config/prompt/config` (XDG standard location)
+2. `~/.prompt.env` (home directory)
+3. `.env` in the current directory (for project-specific overrides)
 
 ### Setup your config:
 

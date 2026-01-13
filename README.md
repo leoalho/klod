@@ -1,6 +1,6 @@
 # Klod
 
-A simple, fast CLI tool for chatting with Claude using the Anthropic API with real-time streaming responses.
+Klod (pronounced \klod\), A simple, fast CLI tool for chatting with Claude using the Anthropic API with real-time streaming responses.
 
 ## Features
 

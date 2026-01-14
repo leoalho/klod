@@ -10,6 +10,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
+	"time"
+	"unsafe"
 
 	"github.com/joho/godotenv"
 )
@@ -57,6 +60,62 @@ type StreamError struct {
 }
 
 var conversationHistory []Message
+var loggingEnabled bool
+var logFilePath string
+
+type winsize struct {
+	Row    uint16
+	Col    uint16
+	Xpixel uint16
+	Ypixel uint16
+}
+
+func getTerminalWidth() int {
+	ws := &winsize{}
+	retCode, _, _ := syscall.Syscall(syscall.SYS_IOCTL,
+		uintptr(syscall.Stdin),
+		uintptr(syscall.TIOCGWINSZ),
+		uintptr(unsafe.Pointer(ws)))
+
+	if int(retCode) == -1 {
+		return 80 // Default fallback
+	}
+	return int(ws.Col)
+}
+
+func printSeparator() {
+	width := getTerminalWidth()
+	fmt.Println(strings.Repeat("─", width))
+}
+
+func logConversation(message Message) error {
+	if !loggingEnabled {
+		return nil
+	}
+
+	// Ensure log directory exists
+	logDir := filepath.Dir(logFilePath)
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		return fmt.Errorf("failed to create log directory: %w", err)
+	}
+
+	// Open log file in append mode
+	file, err := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to open log file: %w", err)
+	}
+	defer file.Close()
+
+	// Write timestamp and message
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
+	logEntry := fmt.Sprintf("[%s] %s: %s\n", timestamp, strings.ToUpper(message.Role), message.Content)
+
+	if _, err := file.WriteString(logEntry); err != nil {
+		return fmt.Errorf("failed to write to log file: %w", err)
+	}
+
+	return nil
+}
 
 func loadConfig() error {
 	// Try loading config from multiple locations in order
@@ -104,6 +163,21 @@ func main() {
 
 	systemPrompt := os.Getenv("SYSTEM_PROMPT")
 
+	// Configure logging
+	loggingEnabled = os.Getenv("KLOD_LOGS") == "true" || os.Getenv("KLOD_LOGS") == "1"
+	logFilePath = os.Getenv("KLOD_LOG_FILE")
+	if logFilePath == "" {
+		// Use XDG_STATE_HOME or default to ~/.local/state per XDG spec
+		stateDir := os.Getenv("XDG_STATE_HOME")
+		if stateDir == "" {
+			homeDir, _ := os.UserHomeDir()
+			stateDir = filepath.Join(homeDir, ".local", "state")
+		}
+		// Create a unique log file for this session based on timestamp
+		sessionTime := time.Now().Format("2006-01-02_15-04-05")
+		logFilePath = filepath.Join(stateDir, "klod", "sessions", sessionTime+".log")
+	}
+
 	// Get initial prompt from command-line arguments
 	if len(os.Args) < 2 {
 		fmt.Fprintln(os.Stderr, "Usage: klod <your prompt>")
@@ -113,28 +187,34 @@ func main() {
 	initialPrompt := strings.Join(os.Args[1:], " ")
 
 	// Add initial user message to conversation history
-	conversationHistory = append(conversationHistory, Message{
+	userMsg := Message{
 		Role:    "user",
 		Content: initialPrompt,
-	})
+	}
+	conversationHistory = append(conversationHistory, userMsg)
+	logConversation(userMsg)
 
 	// Send initial message
+	printSeparator()
+	fmt.Print("\033[34mAssistant: \033[0m")
 	response, err := sendMessage(apiKey, model, systemPrompt)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
+	printSeparator()
 
 	// Add assistant's response to conversation history
-	conversationHistory = append(conversationHistory, Message{
+	assistantMsg := Message{
 		Role:    "assistant",
 		Content: response,
-	})
+	}
+	conversationHistory = append(conversationHistory, assistantMsg)
+	logConversation(assistantMsg)
 
 	// Interactive conversation loop
 	reader := bufio.NewReader(os.Stdin)
 	for {
-		fmt.Println()
 		fmt.Print("\033[32mYou (or 'exit' to quit): \033[0m")
 
 		userInput, err := reader.ReadString('\n')
@@ -151,23 +231,30 @@ func main() {
 		}
 
 		// Add user input to conversation history
-		conversationHistory = append(conversationHistory, Message{
+		userMsg := Message{
 			Role:    "user",
 			Content: userInput,
-		})
+		}
+		conversationHistory = append(conversationHistory, userMsg)
+		logConversation(userMsg)
 
 		// Send message and get response
+		printSeparator()
+		fmt.Print("\033[34mAssistant: \033[0m")
 		response, err := sendMessage(apiKey, model, systemPrompt)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			continue
 		}
+		printSeparator()
 
 		// Add assistant's response to conversation history
-		conversationHistory = append(conversationHistory, Message{
+		assistantMsg := Message{
 			Role:    "assistant",
 			Content: response,
-		})
+		}
+		conversationHistory = append(conversationHistory, assistantMsg)
+		logConversation(assistantMsg)
 	}
 }
 

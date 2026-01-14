@@ -23,11 +23,11 @@ type Message struct {
 }
 
 type APIRequest struct {
-	Model      string    `json:"model"`
-	System     string    `json:"system,omitempty"`
-	MaxTokens  int       `json:"max_tokens"`
-	Messages   []Message `json:"messages"`
-	Stream     bool      `json:"stream"`
+	Model     string    `json:"model"`
+	System    string    `json:"system,omitempty"`
+	MaxTokens int       `json:"max_tokens"`
+	Messages  []Message `json:"messages"`
+	Stream    bool      `json:"stream"`
 }
 
 type ContentBlock struct {
@@ -44,9 +44,9 @@ type APIResponse struct {
 }
 
 type StreamEvent struct {
-	Type  string          `json:"type"`
-	Delta *StreamDelta    `json:"delta,omitempty"`
-	Error *StreamError    `json:"error,omitempty"`
+	Type  string       `json:"type"`
+	Delta *StreamDelta `json:"delta,omitempty"`
+	Error *StreamError `json:"error,omitempty"`
 }
 
 type StreamDelta struct {
@@ -126,8 +126,8 @@ func loadConfig() error {
 
 	configPaths := []string{
 		filepath.Join(homeDir, ".config", "klod", "config"), // XDG standard
-		filepath.Join(homeDir, ".klod.env"),       // Home directory
-		".env",                                      // Current directory (for project-specific overrides)
+		filepath.Join(homeDir, ".klod.env"),                 // Home directory
+		".env",                                              // Current directory (for project-specific overrides)
 	}
 
 	var lastErr error

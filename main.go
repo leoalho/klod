@@ -178,39 +178,36 @@ func main() {
 		logFilePath = filepath.Join(stateDir, "klod", "sessions", sessionTime+".log")
 	}
 
-	// Get initial prompt from command-line arguments
-	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "Usage: klod <your prompt>")
-		os.Exit(1)
-	}
+	// Get initial prompt from command-line arguments (if provided)
+	if len(os.Args) >= 2 {
+		initialPrompt := strings.Join(os.Args[1:], " ")
 
-	initialPrompt := strings.Join(os.Args[1:], " ")
+		// Add initial user message to conversation history
+		userMsg := Message{
+			Role:    "user",
+			Content: initialPrompt,
+		}
+		conversationHistory = append(conversationHistory, userMsg)
+		logConversation(userMsg)
 
-	// Add initial user message to conversation history
-	userMsg := Message{
-		Role:    "user",
-		Content: initialPrompt,
-	}
-	conversationHistory = append(conversationHistory, userMsg)
-	logConversation(userMsg)
+		// Send initial message
+		printSeparator()
+		fmt.Print("\033[34mAssistant: \033[0m")
+		response, err := sendMessage(apiKey, model, systemPrompt)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		printSeparator()
 
-	// Send initial message
-	printSeparator()
-	fmt.Print("\033[34mAssistant: \033[0m")
-	response, err := sendMessage(apiKey, model, systemPrompt)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		// Add assistant's response to conversation history
+		assistantMsg := Message{
+			Role:    "assistant",
+			Content: response,
+		}
+		conversationHistory = append(conversationHistory, assistantMsg)
+		logConversation(assistantMsg)
 	}
-	printSeparator()
-
-	// Add assistant's response to conversation history
-	assistantMsg := Message{
-		Role:    "assistant",
-		Content: response,
-	}
-	conversationHistory = append(conversationHistory, assistantMsg)
-	logConversation(assistantMsg)
 
 	// Interactive conversation loop
 	reader := bufio.NewReader(os.Stdin)
